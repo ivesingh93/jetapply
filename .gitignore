@@ -15,3 +15,7 @@ wheels/
 # CSV files
 job_postings.csv
 job_postings_with_metadata.csv
+
+.ipynb_checkpoints/
+
+notebooks/chroma_db/
