@@ -10,5 +10,8 @@ dependencies = [
     "jupyter>=1.1.1",
     "openai>=2.8.1",
     "pandas>=2.3.3",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
     "python-dotenv>=1.2.1",
+    "sqlalchemy>=2.0.44",
 ]
