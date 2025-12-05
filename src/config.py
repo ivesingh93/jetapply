@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     #Scraping Settings
     SCRAPE_INTERVAL_HOURS: int = 6
-    COMPANIES_TO_SCRAPE: list[str] = ['airbnb', 'stripe', 'gitlab', 'robinhood', 'coinbase', 'databricks']
+    COMPANIES_TO_SCRAPE: list[str] = ['airbnb']
     JOB_KEYWORDS: list[str] = [
         'Software Engineer', 
         'Senior Software Engineer',

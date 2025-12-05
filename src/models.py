@@ -24,7 +24,7 @@ class JobType(str, Enum):
 
 class JobMetadata(BaseModel):
     location_type: LocationType = Field(
-        description="Whther job is remote, hybrid, onsite, or unknown"
+        description="Whether job is remote, hybrid, onsite, or unknown"
     )
     location: Optional[str] = Field(
         description="City and state/country if onsite or hybrid (e.g., 'San Francisco, CA')"

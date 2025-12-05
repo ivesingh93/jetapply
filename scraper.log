@@ -1,0 +1,49 @@
+2025-12-05 17:59:14,550 - __main__ - INFO - ============================================================
+2025-12-05 17:59:14,550 - __main__ - INFO - Starting job scraping pipeline
+2025-12-05 17:59:14,550 - __main__ - INFO - ============================================================
+2025-12-05 17:59:14,550 - __main__ - ERROR - Scraping failed: GreenhouseScraper.scrape_job_postings() missing 1 required positional argument: 'companies'
+Traceback (most recent call last):
+  File "/Users/ivkaransingh/projects/jetapply/scripts/scrape_jobs.py", line 85, in main
+    raw_jobs = manager.scrape_source(args.source)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/ivkaransingh/projects/jetapply/src/scrapers/manager.py", line 31, in scrape_source
+    return scraper.scrape_job_postings(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: GreenhouseScraper.scrape_job_postings() missing 1 required positional argument: 'companies'
+2025-12-05 18:01:23,302 - __main__ - INFO - ============================================================
+2025-12-05 18:01:23,302 - __main__ - INFO - Starting job scraping pipeline
+2025-12-05 18:01:23,302 - __main__ - INFO - ============================================================
+2025-12-05 18:01:23,302 - scraper.greenhouse - INFO - Starting Greenhouse scrape for 1 companies
+2025-12-05 18:01:23,302 - scraper.greenhouse - INFO - [1/1] Scraping airbnb...
+2025-12-05 18:01:23,478 - scraper.greenhouse - INFO - ✓ Found 185 jobs for airbnb
+2025-12-05 18:01:23,478 - scraper.greenhouse - INFO - Greenhouse scrape complete: 185 jobs from 1/1 companies
+2025-12-05 18:01:23,478 - __main__ - INFO - 
+============================================================
+2025-12-05 18:01:23,478 - __main__ - INFO - Scraping complete: 185 jobs found
+2025-12-05 18:01:23,478 - __main__ - INFO - Saving jobs to database...
+2025-12-05 18:01:23,478 - __main__ - ERROR - Scraping failed: 'generator' object does not support the context manager protocol
+Traceback (most recent call last):
+  File "/Users/ivkaransingh/projects/jetapply/scripts/scrape_jobs.py", line 91, in main
+    new_count, duplicate_count = save_jobs_to_db(raw_jobs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/ivkaransingh/projects/jetapply/scripts/scrape_jobs.py", line 35, in save_jobs_to_db
+    with get_db() as db:
+TypeError: 'generator' object does not support the context manager protocol
+2025-12-05 18:04:34,991 - __main__ - INFO - ============================================================
+2025-12-05 18:04:34,991 - __main__ - INFO - Starting job scraping pipeline
+2025-12-05 18:04:34,991 - __main__ - INFO - ============================================================
+2025-12-05 18:04:34,991 - scraper.greenhouse - INFO - Starting Greenhouse scrape for 1 companies
+2025-12-05 18:04:34,991 - scraper.greenhouse - INFO - [1/1] Scraping airbnb...
+2025-12-05 18:04:35,288 - scraper.greenhouse - INFO - ✓ Found 185 jobs for airbnb
+2025-12-05 18:04:35,288 - scraper.greenhouse - INFO - Greenhouse scrape complete: 185 jobs from 1/1 companies
+2025-12-05 18:04:35,288 - __main__ - INFO - 
+============================================================
+2025-12-05 18:04:35,288 - __main__ - INFO - Scraping complete: 185 jobs found
+2025-12-05 18:04:35,288 - __main__ - INFO - Saving jobs to database...
+2025-12-05 18:04:35,319 - __main__ - INFO - 
+============================================================
+2025-12-05 18:04:35,319 - __main__ - INFO - Database update complete:
+2025-12-05 18:04:35,319 - __main__ - INFO -   - New jobs added: 185
+2025-12-05 18:04:35,319 - __main__ - INFO -   - Duplicates skipped: 0
+2025-12-05 18:04:35,319 - __main__ - INFO - ============================================================
+

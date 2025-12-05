@@ -4,7 +4,7 @@ from sqlalchemy.pool import Pool
 from contextlib import contextmanager
 from typing import Generator
 import logging
-
+from contextlib import contextmanager
 from src.config import settings
 from src.models import Base
 
@@ -50,6 +50,7 @@ def drop_all_tables() -> None:
     Base.metadata.drop_all(bind=engine)
     logger.info("All tables dropped")
 
+@contextmanager
 def get_db() -> Generator[Session, None, None]:
     """
     Context manager for database sessions.
