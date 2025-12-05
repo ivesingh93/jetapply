@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     BATCH_SIZE: int = 50
 
     #Database Settings
+    DATABASE_URL: str = "sqlite:///data/jobs.db"
     CHROMA_DB_NAME: str = "jetapply"
     CHROMA_COLLECTION_NAME: str = "job_postings"
 
