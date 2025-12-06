@@ -19,6 +19,7 @@ class RawJobPosting:
     title: str
     description: str
     requirements: Optional[str] = None
+    location: Optional[str] = None
     posted_date: Optional[datetime] = None
 
     def to_dict(self) -> dict:
