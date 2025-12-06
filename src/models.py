@@ -73,11 +73,6 @@ class JobPosting(Base):
     scraped_at = Column(DateTime, default=func.now(), nullable=False)
     metadata_extracted = Column(Boolean, default=False, nullable=False)
     embedded = Column(Boolean, default=False, nullable=False)
-
-    # Prevent duplicates based on company + title + location
-    __table_args__ = (
-        UniqueConstraint('company_name', 'title', 'location', name='unique_job_posting'),
-    )
     
     def __repr__(self):
         return f"<Job(id={self.id}, company='{self.company_name}', title='{self.title}')>"
