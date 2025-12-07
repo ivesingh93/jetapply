@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///data/jobs.db"
     CHROMA_DB_NAME: str = "jetapply"
     CHROMA_COLLECTION_NAME: str = "job_postings"
+    CHROMA_DB_PATH: str = "./chroma_db"
 
     #Scraping Settings
     SCRAPE_INTERVAL_HOURS: int = 6
