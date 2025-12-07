@@ -13,16 +13,10 @@ class LocationType(str, Enum):
     ONSITE = "onsite"
     UNKNOWN = "unknown"
 
-class JobType(str, Enum):
-    FULL_TIME = "full-time"
-    PART_TIME = "part-time"
-    CONTRACT = "contract"
-    TEMPORARY = "temporary"
-    VOLUNTEER = "volunteer"
-    INTERN = "internship"
-    OTHER = "other"
-
 class JobMetadata(BaseModel):
+    """
+    Pydantic model for structured metadata extraction.
+    """
     location_type: LocationType = Field(
         description="Whether job is remote, hybrid, onsite, or unknown"
     )
@@ -35,8 +29,8 @@ class JobMetadata(BaseModel):
     salary_max: Optional[float] = Field(
         description="Maximum salary for the job in USD"
     )
-    salary_currency: Optional[str] = Field(
-        description="Currency of the salary"
+    experience_years: Optional[int] = Field(
+        description="Required years of experience for the job"
     )
 
 # ==================== SQLAlchemy Models (for Database) ====================
@@ -57,21 +51,17 @@ class JobPosting(Base):
     # Job details
     title = Column(String(300), nullable=False, index=True)
     description = Column(Text, nullable=False)
-    requirements = Column(Text)
     
     # Extracted metadata (from LLM)
     location_type = Column(String(50))  # remote/hybrid/onsite
     location = Column(String(200))
     salary_min = Column(Integer)
     salary_max = Column(Integer)
-    required_skills = Column(JSON)  # Stored as JSON array
     experience_years = Column(Integer)
-    department = Column(String(200))
     
     # Tracking
     posted_date = Column(DateTime)
     scraped_at = Column(DateTime, default=func.now(), nullable=False)
-    metadata_extracted = Column(Boolean, default=False, nullable=False)
     embedded = Column(Boolean, default=False, nullable=False)
     
     def __repr__(self):

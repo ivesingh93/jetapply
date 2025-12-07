@@ -133,7 +133,6 @@ class GreenhouseScraper(BaseScraper):
                 source='greenhouse',
                 company_name=company_slug,
                 title=job_data.get('title', ''),
-                requirements=None,
                 location=location_text or None,
                 description=description,
                 posted_date=posted_date,

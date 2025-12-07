@@ -51,12 +51,9 @@ def save_jobs_to_db(raw_jobs: list) -> tuple[int, int]:
                 company_name=raw_job.company_name,
                 title=raw_job.title,
                 description=raw_job.description,
-                requirements=raw_job.requirements,
                 location=raw_job.location,
                 posted_date=raw_job.posted_date,
                 scraped_at=datetime.now(),
-                metadata_extracted=False,  # LLM extraction not done yet
-                embedded=False  # Embeddings not created yet
             )
             
             db.add(job_posting)

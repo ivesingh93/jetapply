@@ -18,7 +18,6 @@ class RawJobPosting:
     company_name: str
     title: str
     description: str
-    requirements: Optional[str] = None
     location: Optional[str] = None
     posted_date: Optional[datetime] = None
 
