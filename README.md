@@ -141,7 +141,3 @@ DATABASE_URL=sqlite:///data/jobs.db
 - [ ] Web UI for job search
 - [ ] Job application tracking
 - [ ] Email notifications
-
-## 📝 License
-
-MIT
