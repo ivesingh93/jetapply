@@ -6,36 +6,10 @@ An intelligent job scraping and search platform that autonomously discovers, ext
 
 - **🤖 Agentic Scraping**: Autonomous job scraping using LangChain agents that automatically detect ATS systems
 - **🔍 Smart Search**: Vector-based semantic search powered by ChromaDB and OpenAI embeddings
+- **🔌 MCP Server**: Model Context Protocol server for AI assistants (Claude, etc.) to search jobs naturally
 - **🏢 Multi-ATS Support**: Currently supports Greenhouse (more coming soon)
 - **📊 Metadata Extraction**: AI-powered extraction of location type, salary, experience requirements
 - **💾 Persistent Storage**: SQLite database with SQLAlchemy ORM
-- **🔄 Duplicate Prevention**: Automatic detection and skipping of existing job postings
-
-## 🏗️ Architecture
-
-```
-jetapply/
-├── src/
-│   ├── scrapers/          # Scraping logic
-│   │   ├── agent_scraper.py    # Agentic autonomous scraper
-│   │   ├── greenhouse.py       # Greenhouse ATS scraper
-│   │   ├── tools.py           # LangChain tools for agents
-│   │   └── manager.py         # Scraper orchestration
-│   ├── extractors/        # Metadata extraction
-│   │   └── metadata_extractor.py
-│   ├── vectorstore/       # Vector search
-│   │   └── chroma_store.py
-│   ├── models.py          # Pydantic & SQLAlchemy models
-│   ├── database.py        # Database connection & setup
-│   └── config.py          # Configuration management
-├── scripts/               # CLI scripts
-│   ├── scrape_jobs.py    # Main scraping script
-│   ├── process_jobs.py   # Metadata extraction
-│   ├── search_jobs.py    # Vector search
-│   └── setup_db.py       # Database initialization
-├── notebooks/            # Jupyter notebooks for exploration
-└── data/                 # SQLite database storage
-```
 
 ## 🚀 Quick Start
 
@@ -46,247 +20,128 @@ jetapply/
 
 ### Installation
 
-1. Clone the repository:
 ```bash
+# Clone and install
 git clone <repository-url>
 cd jetapply
-```
-
-2. Create a `.env` file with your API keys:
-```bash
-OPENAI_API_KEY=your_openai_key
-ANTHROPIC_API_KEY=your_anthropic_key
-```
-
-3. Install dependencies:
-```bash
 uv sync
-```
 
-4. Setup the database:
-```bash
+# Create .env file with API keys
+echo "OPENAI_API_KEY=your_openai_key" >> .env
+echo "ANTHROPIC_API_KEY=your_anthropic_key" >> .env
+
+# Setup database
 uv run python scripts/setup_db.py
 ```
 
 ## 📖 Usage
 
-### Agentic Scraping (Recommended)
-
-The agentic scraper autonomously finds careers pages, detects ATS systems, and saves jobs:
+### Scrape Jobs
 
 ```bash
-# Scrape a single company
+# Agentic scraping (recommended) - automatically finds careers pages
 uv run python scripts/scrape_jobs.py --agentic --company airbnb
 
 # Scrape multiple companies
 uv run python scripts/scrape_jobs.py --agentic --companies gitlab robinhood stripe
-
-# Use default companies from config
-uv run python scripts/scrape_jobs.py --agentic
 ```
 
-**How it works:**
-1. Agent finds the company's careers page
-2. Detects which ATS system they use (Greenhouse, Lever, etc.)
-3. Scrapes all job postings
-4. Saves directly to database, avoiding duplicates
-
-### Traditional Scraping
+### Extract Metadata & Embed Jobs
 
 ```bash
-# Scrape from Greenhouse (default companies in config)
-uv run python scripts/scrape_jobs.py --source greenhouse
-```
-
-### Extract Metadata
-
-Process scraped jobs to extract structured metadata (location type, salary, experience):
-
-```bash
+# Extract metadata (location, salary, experience) and create embeddings
 uv run python scripts/process_jobs.py
 ```
 
 ### Search Jobs
 
-Semantic search using vector embeddings:
-
 ```bash
+# Interactive semantic search
 uv run python scripts/search_jobs.py
+```
+
+## 🔌 MCP Server
+
+Connect AI assistants like Claude to search your job database using natural language.
+
+**Setup:** Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "jetapply": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/jetapply", "run", "python", "-m", "src.mcp.server"],
+      "env": {
+        "OPENAI_API_KEY": "your_openai_key_here"
+      }
+    }
+  }
+}
+```
+
+**Usage:** Ask Claude questions like:
+- "Search for remote Python backend engineer jobs"
+- "Find machine learning roles with 3+ years experience"
+- "Show me onsite jobs in San Francisco"
+
+## 🏗️ Architecture
+
+```
+jetapply/
+├── src/
+│   ├── scrapers/          # Agentic & ATS-specific scrapers
+│   ├── extractors/        # AI-powered metadata extraction
+│   ├── vectorstore/       # ChromaDB vector search
+│   ├── mcp/              # MCP server for AI assistants
+│   ├── models.py         # Data models
+│   ├── database.py       # DB setup
+│   └── config.py         # Configuration
+├── scripts/              # CLI tools
+└── data/                # SQLite & ChromaDB storage
 ```
 
 ## ⚙️ Configuration
 
-Edit `src/config.py` or set environment variables:
+Set in `.env` or `src/config.py`:
 
-```python
-# API Keys (required)
+```bash
+# Required
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 
-# Models
+# Optional
 ANTHROPIC_MODEL=claude-sonnet-4-20250514
 EMBEDDING_MODEL=text-embedding-3-small
-
-# Database
 DATABASE_URL=sqlite:///data/jobs.db
-CHROMA_DB_PATH=./chroma_db
-
-# Scraping
-COMPANIES_TO_SCRAPE=['airbnb', 'gitlab', 'stripe']
-JOB_KEYWORDS=['Software Engineer', 'Data Engineer', ...]
 ```
 
-## 📊 Database Schema
+## 📊 Key Technologies
 
-### JobPosting Table
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | Integer | Primary key |
-| job_url | String | Unique job posting URL |
-| source | String | ATS system (greenhouse, lever) |
-| company_name | String | Company name |
-| title | String | Job title |
-| description | Text | Full job description |
-| location_type | String | remote/hybrid/onsite |
-| location | String | City, State/Country |
-| salary_min/max | Integer | Salary range in USD |
-| experience_years | Integer | Required years of experience |
-| posted_date | DateTime | When job was posted |
-| scraped_at | DateTime | When we scraped it |
-| embedded | Boolean | Vector embedding status |
-
-## 🛠️ Scripts Reference
-
-| Script | Description |
-|--------|-------------|
-| `scrape_jobs.py` | Main scraping interface (agentic or traditional) |
-| `process_jobs.py` | Extract metadata from job descriptions |
-| `search_jobs.py` | Semantic search interface |
-| `setup_db.py` | Initialize database schema |
-| `reset_db.py` | Reset database (⚠️ destructive) |
-
-## 🧪 Development
-
-### Run Jupyter Notebooks
-
-```bash
-uv run jupyter notebook
-```
-
-Explore the notebooks:
-- `01_greenhouse_jobs.ipynb` - Greenhouse scraping exploration
-- `02_parse_jobs.ipynb` - Metadata extraction experiments
-- `03_store_jobs.ipynb` - Vector storage examples
-
-### Project Dependencies
-
-Key libraries:
-- **LangChain**: Agent orchestration and LLM integration
-- **Anthropic Claude**: AI agent and metadata extraction
-- **OpenAI**: Text embeddings for semantic search
-- **ChromaDB**: Vector database for job search
+- **LangChain**: Agent orchestration
+- **Anthropic Claude**: AI reasoning & extraction
+- **OpenAI**: Text embeddings
+- **ChromaDB**: Vector search
 - **SQLAlchemy**: Database ORM
-- **Pydantic**: Data validation and settings
+- **FastMCP**: MCP server framework
 
-## 💡 Examples
+## 🛠️ Scripts
 
-### Example 1: Scrape GitLab Jobs
-
-```bash
-uv run python scripts/scrape_jobs.py --agentic --company gitlab
-```
-
-**Output:**
-```
-🤖 Agent scraping: gitlab
-✓ Found careers page: https://boards.greenhouse.io/gitlab
-✓ Detected Greenhouse from URL
-✓ Saved 115 new jobs to database (from 115 total, 0 duplicates)
-
-Agentic scraping complete:
-  Companies: 1
-  Total new jobs: 115
-```
-
-### Example 2: Scrape Multiple Companies
-
-```bash
-uv run python scripts/scrape_jobs.py --agentic --companies airbnb robinhood gitlab
-```
-
-**Output:**
-```
-[1/3] 🤖 Agent scraping: airbnb
-✓ Saved 186 new jobs to database
-
-[2/3] 🤖 Agent scraping: robinhood
-✓ Saved 96 new jobs to database
-
-[3/3] 🤖 Agent scraping: gitlab
-✓ Saved 115 new jobs to database
-
-Total new jobs: 397
-```
-
-### Example 3: Extract Metadata from Jobs
-
-```bash
-uv run python scripts/process_jobs.py
-```
-
-**Extracts:**
-- Location type (remote/hybrid/onsite)
-- Salary ranges
-- Experience requirements
-- Office locations
-
-### Example 4: Search for Remote ML Jobs
-
-```bash
-uv run python scripts/search_jobs.py "machine learning engineer with python" --location-type remote --limit 10
-```
-
-**Output:**
-```
-🔍 Searching for: 'machine learning engineer with python'
-   Filters: {'location_type': 'remote'}
-
-================================================================================
-Found 10 matching jobs
-================================================================================
-
-1. Senior Machine Learning Engineer
-   Company: Airbnb
-   Location: remote
-   Salary: $150,000 - $200,000
-   Experience: 5 years
-   Relevance: High (distance: 0.2341, similarity: 88%)
-   Job ID: 123
-
-2. ML Engineer - Python
-   Company: GitLab
-   Location: remote
-   Salary: $140,000 - $180,000
-   Experience: 3 years
-   Relevance: High (distance: 0.2567, similarity: 85%)
-   Job ID: 456
-...
-```
-
-**View ChromaDB stats:**
-```bash
-uv run python scripts/search_jobs.py --stats
-```
+| Script | Purpose |
+|--------|---------|
+| `scrape_jobs.py` | Scrape jobs (agentic or traditional) |
+| `process_jobs.py` | Extract metadata & create embeddings |
+| `search_jobs.py` | Semantic job search |
+| `setup_db.py` | Initialize database |
 
 ## 🎯 Roadmap
 
-- [ ] Add support for Lever ATS
-- [ ] Add support for Workday ATS
-- [ ] Implement periodic scraping scheduler
-- [ ] Add more sophisticated search filters
-- [ ] Build web UI for job search
-- [ ] Add job application tracking
-- [ ] Email notifications for new matching jobs
+- [ ] Lever & Workday ATS support
+- [ ] Periodic scraping scheduler
+- [ ] Web UI for job search
+- [ ] Job application tracking
+- [ ] Email notifications
 
+## 📝 License
 
+MIT
