@@ -8,8 +8,8 @@ from datetime import datetime
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-
-from src.scrapers import ScraperManager
+from src.scrapers.company_scraper import scrape_and_store_company_page
+from src.vectorstore import ChromaStore
 from src.scrapers.agent_scraper import AgenticScraper
 from src.database import get_db
 from src.models import JobPosting
@@ -25,6 +25,38 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+def scrape_company_if_new(company_name: str):
+    """
+    Automatically scrape company info if not already in database.
+    
+    Args:
+        company_name: Company to check and scrape if needed
+    """
+    try:
+        store = ChromaStore()
+        
+        # Check if company already exists
+        if store.company_exists(company_name):
+            logger.info(f"  ℹ️  {company_name} company info already in database, skipping")
+            return
+        
+        # Company doesn't exist, scrape it
+        logger.info(f"  📄 New company detected, scraping company info: {company_name}")
+        chunks_stored, message = scrape_and_store_company_page(
+            company_name=company_name,
+            base_url=None,  # Will auto-detect
+            store=store
+        )
+        
+        if chunks_stored > 0:
+            logger.info(f"  ✓ Stored {chunks_stored} chunks for {company_name}")
+        else:
+            logger.warning(f"  ⚠️  Could not scrape company info for {company_name}")
+            
+    except Exception as e:
+        logger.warning(f"  ⚠️  Failed to scrape company info for {company_name}: {e}")
+        logger.info("  (Job scraping was successful, continuing...)")
 
 def save_jobs_to_db(raw_jobs: list) -> tuple[int, int]:
     """
@@ -97,6 +129,7 @@ def main():
 
     logger.info("=" * 60)
     logger.info("Starting job scraping pipeline")
+    logger.info("  (Auto-scraping company info for new companies)")
     logger.info("=" * 60)
 
     try:
@@ -119,10 +152,13 @@ def main():
                 logger.info(f"\n[{idx}/{len(companies)}] 🤖 Agent scraping: {company}")
                 
                 try:
-                    # Agent saves to DB, returns summary
+                    # 1. Scrape jobs
                     jobs_count, summary = agent.scrape_company(company)
                     logger.info(f"  {summary}")
                     total_new_jobs += jobs_count
+
+                    # 2. Auto-scrape company info if new (unless disabled)
+                    scrape_company_if_new(company)
                     
                 except Exception as e:
                     logger.error(f"  ✗ Failed: {e}")
@@ -133,21 +169,21 @@ def main():
             logger.info(f"  Companies: {len(companies)}")
             logger.info(f"  Total new jobs: {total_new_jobs}")
             logger.info(f"{'=' * 60}\n")
-        else:
-            manager = ScraperManager()
-            raw_jobs = manager.scrape_source(args.source)
+        # else:
+        #     manager = ScraperManager()
+        #     raw_jobs = manager.scrape_source(args.source)
             
-            logger.info(f"\n{'=' * 60}")
-            logger.info(f"Scraping complete: {len(raw_jobs)} jobs found")
+        #     logger.info(f"\n{'=' * 60}")
+        #     logger.info(f"Scraping complete: {len(raw_jobs)} jobs found")
 
-            logger.info("Saving jobs to database...")
-            new_count, duplicate_count = save_jobs_to_db(raw_jobs)
+        #     logger.info("Saving jobs to database...")
+        #     new_count, duplicate_count = save_jobs_to_db(raw_jobs)
 
-            logger.info(f"\n{'=' * 60}")
-            logger.info("Database update complete:")
-            logger.info(f"  - New jobs added: {new_count}")
-            logger.info(f"  - Duplicates skipped: {duplicate_count}")
-            logger.info(f"{'=' * 60}\n")
+        #     logger.info(f"\n{'=' * 60}")
+        #     logger.info("Database update complete:")
+        #     logger.info(f"  - New jobs added: {new_count}")
+        #     logger.info(f"  - Duplicates skipped: {duplicate_count}")
+        #     logger.info(f"{'=' * 60}\n")
 
     except Exception as e:
         logger.error(f"Scraping failed: {e}", exc_info=True)
